@@ -1,0 +1,166 @@
+{
+  "name": "Graduation Projects - Advanced AI Agent (LangChain)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-agent-chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook-input",
+      "name": "Webhook - User Prompt",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        180,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.prompt || 'لخص لي حالة المشاريع الحالية' }}",
+        "options": {
+          "systemMessage": "أنت المساعد الذكي الأكاديمي لمنصة مشاريع التخرج. دورك مساعدة إدارة المنصة والدكتور المشرف (د. محمد محمود) في: متابعة حالة الفرق، فحص الشُعب، تدقيق الكارنيهات عبر SQLite، واقتراح أقسام ومتطلبات تسليم المشاريع. تحدث بلغة عربية مهنية ومنظمة، واستخدم أداة Query Platform SQLite للحصول على البيانات الحقيقية."
+        }
+      },
+      "id": "node-ai-agent",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        460,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "node-chat-model",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        380,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "sessionKey": "={{ $json.body.session_id || 'doctor_session' }}"
+      },
+      "id": "node-memory",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        520,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "name": "query_platform_sqlite",
+        "description": "استعلام مباشر من قاعدة بيانات المنصة SQLite لجلب الشُعب الحالية، الفرق المسجلة، أسماء الطلاب، وتفاصيل المشرف.",
+        "method": "POST",
+        "url": "http://localhost:3000/api/ai/agent",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": $fromAI('query', 'الاستعلام المطلوب من قاعدة البيانات'),\n  \"user_role\": \"doctor\",\n  \"doctor_name\": \"د. محمد محمود\"\n}"
+      },
+      "id": "node-tool-sqlite",
+      "name": "Tool - Query Platform SQLite",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        680,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"reply\": $json.output,\n  \"agent_type\": \"LangChain Autonomous Agent\"\n}",
+        "options": {}
+      },
+      "id": "node-respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        280
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - User Prompt": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Query Platform SQLite": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2.0",
+  "id": "graduation-projects-langchain-ai-agent",
+  "tags": []
+}

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الدكتور — منصة خِرّيج</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .dashboard-layout{display:flex;min-height:calc(100vh - var(--navbar-h));padding-top:var(--navbar-h)}
+    .sidebar{width:250px;flex-shrink:0;position:fixed;top:var(--navbar-h);right:0;bottom:0;z-index:900;background:var(--surface);border-left:1px solid var(--border)}
+    .main-content{flex:1;min-width:0;margin-right:250px;padding:2rem}
+    .navbar{padding:0 1.5rem}
+    .navbar .container-lg{max-width:100%;padding:0}
+    .hamburger{display:none;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);width:36px;height:36px;align-items:center;justify-content:center;font-size:1.2rem;color:var(--text);cursor:pointer}
+    @media (max-width:1024px){
+      .hamburger{display:inline-flex}
+      .sidebar{transform:translateX(100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+      .sidebar.open{transform:translateX(0);display:flex!important}
+      .main-content{margin-right:0;padding:1.25rem 1rem}
+    }
+    .demo-note{background:var(--warning-bg);border:1px solid #FDE68A;color:#92400E;border-radius:var(--radius-sm);padding:.5rem .9rem;font-size:.82rem;margin-bottom:1.25rem}
+    .crumbs{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem}
+    .crumbs a{color:var(--primary);font-weight:600}
+    .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem}
+    .page-head h1{font-size:1.5rem;margin-bottom:.15rem}
+    .page-head p{font-size:.9rem}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin-bottom:1.5rem}
+    .kpi{display:block;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.15rem;border-right:4px solid var(--border);transition:var(--transition)}
+    a.kpi:hover{border-color:var(--primary);border-right-color:inherit}
+    .kpi b{display:block;font-size:1.8rem;font-weight:700;line-height:1.2;color:var(--text)}
+    .kpi span{font-size:.82rem;color:var(--text-muted)}
+    .kpi.k-new{border-right-color:var(--info)}.kpi.k-wait{border-right-color:var(--warning)}.kpi.k-late{border-right-color:var(--danger)}.kpi.k-done{border-right-color:var(--success)}
+    .block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.5rem;overflow:hidden}
+    .block-head{padding:.85rem 1.15rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+    .block-head h2{font-size:1rem}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+    @media (max-width:900px){.grid2{grid-template-columns:1fr}}
+    .row-item{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.75rem 1.15rem;border-bottom:1px solid var(--border-light)}
+    .row-item:last-child{border-bottom:0}
+    .row-item .t{font-weight:600;color:var(--text);font-size:.9rem}
+    .row-item .s{font-size:.78rem;color:var(--text-muted)}
+    .empty{padding:2rem 1rem;text-align:center;color:var(--text-muted);font-size:.9rem}
+    .chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.9rem}
+    .chip{border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);border-radius:var(--radius-full);padding:.35rem .85rem;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;display:inline-flex;gap:.4rem;align-items:center}
+    .chip:hover{border-color:var(--primary);color:var(--primary)}
+    .chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+    .chip em{font-style:normal;background:rgba(0,0,0,.08);border-radius:var(--radius-full);padding:0 .45rem;font-size:.75rem}
+    .chip.on em{background:rgba(255,255,255,.22)}
+    .toolbar{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.9rem}
+    .toolbar .form-control{width:auto;min-width:180px}
+    .toolbar .grow{flex:1;min-width:200px}
+    .bulkbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;background:var(--primary-bg);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .9rem;margin-bottom:.9rem}
+    .bulkbar b{color:var(--primary)}
+    tr.is-new td:first-child{box-shadow:inset -4px 0 0 var(--info)}
+    tr.is-new .tname{font-weight:800}
+    tr.clickable{cursor:pointer}
+    .tname{font-weight:700;color:var(--text)}
+    td{min-width:0}
+    .tsub{font-size:.75rem;color:var(--text-muted)}
+    .mini{display:flex;align-items:center;gap:.5rem;min-width:110px}
+    .mini .progress{flex:1;height:6px}
+    .mini span{font-size:.75rem;color:var(--text-muted);white-space:nowrap}
+    .pager{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.75rem 1.15rem;border-top:1px solid var(--border);font-size:.85rem;color:var(--text-muted);flex-wrap:wrap}
+    .pager .btns{display:flex;gap:.4rem}
+    .stack{display:flex;height:8px;border-radius:var(--radius-full);overflow:hidden;background:var(--surface-2)}
+    .stack i{display:block;height:100%}
+    .c-done{background:var(--success)}.c-wait{background:var(--warning)}.c-rev{background:var(--info)}.c-none{background:#CBD5E1}.c-late{background:var(--danger)}
+    .legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.75rem;color:var(--text-muted);margin-top:.5rem}
+    .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-left:.3rem}
+    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+    .pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.15rem}
+    .pcard h3{font-size:1rem;margin-bottom:.25rem}
+    .pcard .meta{display:flex;gap:1rem;flex-wrap:wrap;font-size:.8rem;color:var(--text-muted);margin:.6rem 0}
+    .codebox{display:inline-flex;gap:.5rem;align-items:center;background:var(--surface-2);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:.25rem .6rem;font-family:monospace;font-size:.85rem;color:var(--text)}
+    .codebox button{border:0;background:none;color:var(--primary);cursor:pointer;font-size:1rem}
+    .split{display:grid;grid-template-columns:340px 1fr;gap:1.25rem;align-items:start}
+    @media (max-width:1100px){.split{grid-template-columns:1fr}}
+    .qlist{max-height:70vh;overflow-y:auto}
+    .qitem{display:block;width:100%;text-align:right;background:none;border:0;border-bottom:1px solid var(--border-light);padding:.7rem 1rem;font:inherit;cursor:pointer}
+    .qitem:hover{background:var(--surface-2)}
+    .qitem.on{background:var(--primary-bg);box-shadow:inset -4px 0 0 var(--primary)}
+    .qitem .t{font-weight:700;color:var(--text);font-size:.88rem}
+    .qitem .s{font-size:.76rem;color:var(--text-muted)}
+    .panel{padding:1.25rem}
+    .panel h2{font-size:1.15rem;margin-bottom:.2rem}
+    .filebox{display:flex;align-items:center;gap:.7rem;border:1px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .8rem;margin:.4rem 0;font-size:.88rem}
+    .filebox i{font-size:1.3rem;color:var(--primary)}
+    .actions{display:flex;gap:.5rem;flex-wrap:wrap}
+    .req-row{display:grid;grid-template-columns:1fr auto;gap:.75rem;align-items:center;padding:.85rem 1.15rem;border-bottom:1px solid var(--border-light)}
+    .req-row:last-child{border-bottom:0}
+    .req-row .t{font-weight:700;color:var(--text)}
+    .pick{max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm)}
+    .pick label{display:flex;gap:.6rem;align-items:center;padding:.4rem .75rem;border-bottom:1px solid var(--border-light);font-size:.85rem;cursor:pointer}
+    .radio-row{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+    .radio-row label{display:flex;gap:.6rem;align-items:flex-start;font-size:.9rem;cursor:pointer;border:1px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .8rem}
+    .radio-row label small{display:block;color:var(--text-muted)}
+    #modal-x .modal{max-height:90vh;display:flex;flex-direction:column}
+    #modal-x .modal-body{overflow-y:auto}
+    .nav2{display:flex;gap:.5rem;align-items:center}
+    .badge{border-radius:var(--radius-sm)}
+    @media (max-width:700px){
+      .hide-m{display:none}
+      .req-row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container-lg">
+    <div class="flex gap-3" style="align-items:center">
+      <button class="hamburger" id="menu-toggle" aria-label="القائمة"><i class="ri-menu-line"></i></button>
+      <a class="navbar-brand" href="../index.html">
+        <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div>
+        <span>منصة خِرّيج</span>
+      </a>
+    </div>
+    <div class="navbar-actions">
+      <span class="text-sm text-muted hide-m" id="doc-name">د. مشرف</span>
+      <a href="auth.html" class="btn btn-outline btn-sm">خروج</a>
+    </div>
+  </div>
+</header>
+
+<div class="dashboard-layout">
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-link" href="#/" data-nav=""><i class="ri-inbox-line icon"></i> يحتاج منك</a>
+    <a class="sidebar-link" href="#/review" data-nav="review"><i class="ri-checkbox-circle-line icon"></i> المراجعة <span class="badge badge-warning" id="b-review" hidden></span></a>
+    <a class="sidebar-link" href="#/teams" data-nav="teams"><i class="ri-team-line icon"></i> الفرق <span class="badge badge-info" id="b-teams" hidden></span></a>
+    <a class="sidebar-link" href="#/requirements" data-nav="requirements"><i class="ri-task-line icon"></i> المطلوبات</a>
+    <a class="sidebar-link" href="#/projects" data-nav="projects"><i class="ri-folder-3-line icon"></i> المشاريع</a>
+    <a class="sidebar-link" href="#/gallery" data-nav="gallery"><i class="ri-gallery-line icon"></i> النشر في المعرض</a>
+  </aside>
+  <main class="main-content" id="view"></main>
+</div>
+
+<!-- مودال عام -->
+<div class="modal-overlay" id="modal-x" onclick="closeModalOutside(event,'modal-x')">
+  <div class="modal" role="dialog" aria-labelledby="mx-title" style="max-width:560px">
+    <div class="modal-header">
+      <h3 class="modal-title" id="mx-title"></h3>
+      <button class="modal-close" onclick="closeModal('modal-x')" aria-label="إغلاق"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="modal-body" id="mx-body"></div>
+    <div class="modal-footer" id="mx-foot"></div>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+/* =====================================================================
+   لوحة الدكتور — الحالة الحالية: بيانات تجريبية (DEMO)
+   كل تعديل بيمر عبر كائن Api في آخر الملف؛ ده المكان الوحيد اللي
+   هتوصّله بالسيرفر. الباقي (العرض والفلترة) ما يتغيرش.
+   ===================================================================== */
+const DEMO = true;
+const DAY = 86400000;
+const NOW = Date.now();
+const $ = (s, r = document) => r.querySelector(s);
+const e = escapeHTML;
+
+/* ---------- بيانات تجريبية ثابتة (seeded) ---------- */
+let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const pick = (a) => a[Math.floor(rnd() * a.length)];
+
+const DB = { projects: [], reqs: [], teams: [], subs: {} /* key: teamId|reqId */ };
+
+(function seedData() {
+  DB.projects = [
+    { id: 'P1', title: 'مشروع التخرج — علوم الحاسب', code: 'CS-2026-A7F3', open: true },
+    { id: 'P2', title: 'مشروع التخرج — نظم المعلومات', code: 'IS-2026-K29D', open: true },
+  ];
+  const d = (n) => NOW + n * DAY;
+  DB.reqs = [
+    { id: 'R1', pid: 'P1', title: 'وثيقة المتطلبات (SRS)', desc: 'وثيقة PDF فيها المتطلبات الوظيفية وغير الوظيفية.', due: d(-12), only: null },
+    { id: 'R2', pid: 'P1', title: 'التصميم: ERD ونماذج الشاشات', desc: 'مخطط قاعدة البيانات وصور تصميم الشاشات الأساسية.', due: d(5), only: null },
+    { id: 'R3', pid: 'P1', title: 'النموذج الأولي (Prototype)', desc: 'رابط أو فيديو لنسخة تجريبية تعمل.', due: d(25), only: null },
+    { id: 'R4', pid: 'P2', title: 'اقتراح المشروع', desc: 'صفحتان: المشكلة والحل والأدوات.', due: d(-20), only: null },
+    { id: 'R5', pid: 'P2', title: 'تحليل النظام (UML)', desc: 'Use case وClass وSequence diagrams.', due: d(3), only: null },
+  ];
+  const words = ['النخبة','الرواد','المبدعون','الأمل','النور','الفجر','الصقور','المستقبل','الابتكار','البناة','الأطلس','الشروق','القمة','الإنجاز','التميز','الواحة','الهدهد','النيل','الفراعنة','السحاب','الشعلة','الهلال','الجسور','الريادة','الإبداع','الماسة','النجوم','الأفق','المنارة','الصدى','الينابيع','الهرم','البوصلة','الشراع','الأمواج','العقول','الرؤية','الخوارزمية','البيانات','الشبكة'];
+  const first = ['أحمد','محمد','محمود','مصطفى','عمر','يوسف','كريم','إسلام','نور','سلمى','مريم','هدى','ياسمين','دينا','آية','سارة','منة','رنا','خالد','عمرو'];
+  const last = ['علي','حسن','إبراهيم','السيد','عبدالله','فتحي','سمير','رضا','نصر','جمال','شريف','زكي'];
+  for (let i = 0; i < 100; i++) {
+    const age = i < 9 ? Math.floor(rnd() * 4) : 5 + Math.floor(rnd() * 85);
+    DB.teams.push({
+      id: 'T' + (i + 1),
+      name: 'فريق ' + words[i % 40] + (i >= 40 ? ' ' + (Math.floor(i / 40) + 1) : ''),
+      pid: i < 60 ? 'P1' : 'P2',
+      leader: pick(first) + ' ' + pick(last),
+      size: 3 + Math.floor(rnd() * 3),
+      created: NOW - age * DAY - Math.floor(rnd() * DAY),
+      lastReview: null,
+      note: '',
+    });
+  }
+  // حالات التسليم
+  DB.teams.forEach((t) => {
+    const age = (NOW - t.created) / DAY;
+    DB.reqs.filter((r) => r.pid === t.pid).forEach((r) => {
+      const k = t.id + '|' + r.id;
+      const overdue = r.due < NOW;
+      const x = rnd();
+      let s = { status: 'none' };
+      if (age < 6) { DB.subs[k] = s; return; }
+      if (overdue) {
+        if (x < .45) s = { status: 'approved', at: r.due - 3 * DAY, rev: NOW - 6 * DAY };
+        else if (x < .7) s = { status: 'submitted', at: NOW - Math.floor(rnd() * 14) * DAY - 3600000, files: ['تسليم.pdf'] };
+        else if (x < .8) s = { status: 'revision', at: NOW - 9 * DAY, note: 'يرجى إضافة المتطلبات غير الوظيفية.' };
+      } else {
+        if (x < .12) s = { status: 'approved', at: NOW - 8 * DAY, rev: NOW - 4 * DAY };
+        else if (x < .3) s = { status: 'submitted', at: NOW - Math.floor(rnd() * 6) * DAY - 3600000, files: ['تسليم.pdf'] };
+      }
+      DB.subs[k] = s;
+    });
+  });
+  DB.teams.forEach((t) => {
+    const rv = DB.reqs.filter((r) => r.pid === t.pid).map((r) => DB.subs[t.id + '|' + r.id].rev).filter(Boolean);
+    if (rv.length) t.lastReview = Math.max(...rv);
+  });
+})();
+
+/* ---------- "جديد" = لم يفتحه الدكتور بعد (محفوظ في المتصفح) ---------- */
+const SEEN_KEY = 'kh_doctor_seen_v1';
+let seen = new Set();
+try {
+  const raw = localStorage.getItem(SEEN_KEY);
+  if (raw) seen = new Set(JSON.parse(raw));
+  else DB.teams.forEach((t) => { if ((NOW - t.created) / DAY > 4) seen.add(t.id); }); // الأقدم من 4 أيام يعتبر مشاهد
+} catch (_) { DB.teams.forEach((t) => { if ((NOW - t.created) / DAY > 4) seen.add(t.id); }); }
+const saveSeen = () => { try { localStorage.setItem(SEEN_KEY, JSON.stringify([...seen])); } catch (_) {} };
+
+/* ---------- المشتقات ---------- */
+const proj = (id) => DB.projects.find((p) => p.id === id);
+const req = (id) => DB.reqs.find((r) => r.id === id);
+const team = (id) => DB.teams.find((t) => t.id === id);
+const reqsOf = (t) => DB.reqs.filter((r) => r.pid === t.pid && (!r.only || r.only.includes(t.id)));
+const subOf = (t, r) => DB.subs[t.id + '|' + r.id] || { status: 'none' };
+const isLate = (t, r) => r.due < NOW && subOf(t, r).status === 'none';
+
+function stats(t) {
+  const rs = reqsOf(t);
+  const c = { total: rs.length, approved: 0, submitted: 0, revision: 0, none: 0, late: 0, oldestWait: null };
+  rs.forEach((r) => {
+    const s = subOf(t, r);
+    c[s.status]++;
+    if (s.status === 'none' && r.due < NOW) c.late++;
+    if (s.status === 'submitted' && (c.oldestWait === null || s.at < c.oldestWait)) c.oldestWait = s.at;
+  });
+  c.isNew = !seen.has(t.id);
+  c.done = c.total > 0 && c.approved === c.total;
+  c.lastAct = Math.max(t.created, t.lastReview || 0, ...rs.map((r) => subOf(t, r).at || 0));
+  // الحالة الرئيسية بالأولوية
+  c.main = c.submitted ? 'wait' : c.late ? 'late' : c.revision ? 'rev' : c.done ? 'done' : c.isNew ? 'new' : 'work';
+  return c;
+}
+const MAIN = {
+  wait: ['بانتظار مراجعتك', 'badge-warning'],
+  late: ['متأخر عن التسليم', 'badge-danger'],
+  rev: ['تعديل عند الطلاب', 'badge-info'],
+  done: ['مكتمل', 'badge-success'],
+  new: ['جديد — لم يبدأ', 'badge-primary'],
+  work: ['شغّال', 'badge-gray'],
+};
+const FILTERS = [
+  ['all', 'الكل', () => true],
+  ['new', 'جديد', (s) => s.isNew],
+  ['wait', 'بانتظار مراجعتك', (s) => s.submitted > 0],
+  ['late', 'متأخر', (s) => s.late > 0],
+  ['rev', 'تعديل عند الطلاب', (s) => s.revision > 0],
+  ['done', 'مكتمل', (s) => s.done],
+];
+
+/* ---------- أدوات عرض ---------- */
+const fmtDate = (ts) => new Date(ts).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+function ago(ts) {
+  const d = Math.floor((NOW - ts) / DAY);
+  if (d <= 0) return 'النهاردة';
+  if (d === 1) return 'امبارح';
+  if (d < 11) return `من ${d} أيام`;
+  return `من ${d} يوم`;
+}
+function dueText(ts) {
+  const d = Math.ceil((ts - NOW) / DAY);
+  if (d < 0) return `انتهى من ${-d} يوم`;
+  if (d === 0) return 'ينتهي النهاردة';
+  return `باقي ${d} يوم`;
+}
+const badge = (txt, cls) => `<span class="badge ${cls}">${e(txt)}</span>`;
+const subBadge = (s, r) => {
+  if (s.status === 'approved') return badge('معتمد', 'badge-success');
+  if (s.status === 'submitted') return badge('بانتظار مراجعتك', 'badge-warning');
+  if (s.status === 'revision') return badge('تعديل مطلوب', 'badge-info');
+  return r && r.due < NOW ? badge('متأخر', 'badge-danger') : badge('لم يسلّم', 'badge-gray');
+};
+const stackBar = (c) => {
+  const t = c.total || 1;
+  const w = (n) => (n / t * 100).toFixed(1) + '%';
+  const none = c.none - c.late;
+  return `<div class="stack" title="معتمد ${c.approved} · بانتظارك ${c.submitted} · تعديل ${c.revision} · متأخر ${c.late} · لم يسلّم ${none}">
+    <i class="c-done" style="width:${w(c.approved)}"></i><i class="c-wait" style="width:${w(c.submitted)}"></i><i class="c-rev" style="width:${w(c.revision)}"></i><i class="c-late" style="width:${w(c.late)}"></i><i class="c-none" style="width:${w(none)}"></i></div>`;
+};
+const legend = `<div class="legend"><span><i class="c-done"></i>معتمد</span><span><i class="c-wait"></i>بانتظارك</span><span><i class="c-rev"></i>تعديل</span><span><i class="c-late"></i>متأخر</span><span><i class="c-none"></i>لم يسلّم</span></div>`;
+
+/* ---------- حالة الواجهة (تنتقل مع التنقل بين الصفحات) ---------- */
+const ui = { f: 'all', q: '', pid: '', page: 1, sel: new Set(), qReq: '', qSel: null };
+let lastList = []; // ترتيب الفرق الحالي للتنقل السابق/التالي
+const PAGE = 15;
+
+/* ---------- الـ API (المكان الوحيد المطلوب توصيله) ---------- */
+const Api = {
+  async approve(tid, rid) { const s = DB.subs[tid + '|' + rid]; s.status = 'approved'; s.rev = Date.now(); team(tid).lastReview = s.rev; },
+  async revise(tid, rid, note) { const s = DB.subs[tid + '|' + rid]; s.status = 'revision'; s.note = note; s.rev = Date.now(); team(tid).lastReview = s.rev; },
+  async createReq(r, teamIds) { // teamIds: null = كل فرق المشروع
+    r.id = 'R' + (DB.reqs.length + 1); r.only = teamIds; DB.reqs.push(r);
+    DB.teams.filter((t) => t.pid === r.pid && (!teamIds || teamIds.includes(t.id))).forEach((t) => (DB.subs[t.id + '|' + r.id] = { status: 'none' }));
+    return r;
+  },
+  async remind(teamIds, rid) { return teamIds.length; },
+  async createProject(p) { p.id = 'P' + (DB.projects.length + 1); p.code = p.prefix + '-2026-' + Math.random().toString(36).slice(2, 6).toUpperCase(); DB.projects.push(p); return p; },
+  async setNote(tid, note) { team(tid).note = note; },
+  async publish(tid) { team(tid).published = true; },
+};
+
+/* ---------- تنقل ---------- */
+const view = $('#view');
+function route() {
+  const [, a = '', b] = location.hash.split('/');
+  document.querySelectorAll('.sidebar-link[data-nav]').forEach((l) => l.classList.toggle('active', l.dataset.nav === (a === 'team' ? 'teams' : a === 'requirement' ? 'requirements' : a)));
+  $('#sidebar').classList.remove('open');
+  const demo = DEMO ? '<div class="demo-note"><i class="ri-information-line"></i> بيانات تجريبية (100 فريق) — التعديلات هنا لا تُحفظ على السيرفر لحد ما يتوصّل كائن <code>Api</code>.</div>' : '';
+  const R = { '': vOverview, teams: vTeams, team: vTeam, review: vReview, requirements: vReqs, requirement: vReq, projects: vProjects, gallery: vGallery };
+  view.innerHTML = demo + (R[a] || vOverview)(decodeURIComponent(b || ''));
+  window.scrollTo(0, 0);
+  badges();
+}
+function badges() {
+  const all = DB.teams.map(stats);
+  const w = all.reduce((n, s) => n + s.submitted, 0);
+  const nw = all.filter((s) => s.isNew).length;
+  const set = (id, n) => { const el = $(id); el.hidden = !n; el.textContent = n; };
+  set('#b-review', w); set('#b-teams', nw);
+}
+window.addEventListener('hashchange', route);
+
+/* ============================ 1) يحتاج منك ============================ */
+function vOverview() {
+  const all = DB.teams.map((t) => ({ t, s: stats(t) }));
+  const nNew = all.filter((x) => x.s.isNew).length;
+  const wait = all.reduce((n, x) => n + x.s.submitted, 0);
+  const late = all.filter((x) => x.s.late > 0).length;
+  const done = all.filter((x) => x.s.done).length;
+  const oldest = [];
+  all.forEach(({ t }) => reqsOf(t).forEach((r) => { const s = subOf(t, r); if (s.status === 'submitted') oldest.push({ t, r, s }); }));
+  oldest.sort((a, b) => a.s.at - b.s.at);
+  const newest = all.filter((x) => x.s.isNew).sort((a, b) => b.t.created - a.t.created).slice(0, 6);
+  const lateTeams = all.filter((x) => x.s.late > 0).sort((a, b) => b.s.late - a.s.late).slice(0, 6);
+
+  return `
+  <div class="page-head"><div><h1>يحتاج منك</h1><p class="text-muted">من ${DB.teams.length} فريق، ده اللي محتاج تدخّلك دلوقتي. الباقي شغّال لوحده.</p></div></div>
+  <div class="kpis">
+    <a class="kpi k-wait" href="#/review"><b>${wait}</b><span>تسليم بانتظار مراجعتك</span></a>
+    <a class="kpi k-new" href="#/teams" data-filter="new"><b>${nNew}</b><span>فريق جديد لم تفتحه</span></a>
+    <a class="kpi k-late" href="#/teams" data-filter="late"><b>${late}</b><span>فريق متأخر عن التسليم</span></a>
+    <a class="kpi k-done" href="#/teams" data-filter="done"><b>${done}</b><span>فريق أنهى كل المطلوب</span></a>
+  </div>
+  <div class="grid2">
+    <div class="block">
+      <div class="block-head"><h2>الأقدم انتظاراً للمراجعة</h2><a class="btn btn-primary btn-sm" href="#/review">ابدأ المراجعة</a></div>
+      ${oldest.length ? oldest.slice(0, 6).map((o) => `
+        <div class="row-item"><div><div class="t">${e(o.t.name)}</div><div class="s">${e(o.r.title)} · سُلّم ${ago(o.s.at)}</div></div>
+        <a class="btn btn-outline btn-sm" href="#/review/${o.t.id}~${o.r.id}">راجع</a></div>`).join('') : '<div class="empty">مفيش حاجة مستنية مراجعتك 🎉</div>'}
+    </div>
+    <div class="block">
+      <div class="block-head"><h2>فرق جديدة</h2><a class="btn btn-outline btn-sm" href="#/teams" data-filter="new">عرض الكل</a></div>
+      ${newest.length ? newest.map((x) => `
+        <div class="row-item"><div><div class="t">${e(x.t.name)} ${badge('جديد', 'badge-info')}</div><div class="s">${e(proj(x.t.pid).title)} · انضم ${ago(x.t.created)} · القائد ${e(x.t.leader)}</div></div>
+        <a class="btn btn-outline btn-sm" href="#/team/${x.t.id}">افتح</a></div>`).join('') : '<div class="empty">كل الفرق الجديدة فتحتها.</div>'}
+    </div>
+  </div>
+  <div class="block">
+    <div class="block-head"><h2>متأخرون عن التسليم</h2><div class="actions"><a class="btn btn-outline btn-sm" href="#/teams" data-filter="late">عرض الكل</a></div></div>
+    ${lateTeams.length ? lateTeams.map((x) => `
+      <div class="row-item"><div><div class="t">${e(x.t.name)}</div><div class="s">${x.s.late} مطلوب متأخر · القائد ${e(x.t.leader)}</div></div>
+      <a class="btn btn-outline btn-sm" href="#/team/${x.t.id}">افتح</a></div>`).join('') : '<div class="empty">لا يوجد متأخرون.</div>'}
+  </div>
+  <div class="block">
+    <div class="block-head"><h2>تقدّم كل مطلوب</h2><a class="btn btn-outline btn-sm" href="#/requirements">كل المطلوبات</a></div>
+    ${DB.reqs.map((r) => { const c = reqCounts(r); return `<a class="row-item" href="#/requirement/${r.id}" style="display:grid;grid-template-columns:1fr 1.2fr;gap:1rem">
+      <div><div class="t">${e(r.title)}</div><div class="s">${e(proj(r.pid).title)} · ${dueText(r.due)}</div></div><div>${stackBar(c)}<div class="s" style="margin-top:.3rem">${c.approved} معتمد من ${c.total}</div></div></a>`; }).join('')}
+    <div style="padding:0 1.15rem 1rem">${legend}</div>
+  </div>`;
+}
+function reqCounts(r) {
+  const c = { total: 0, approved: 0, submitted: 0, revision: 0, none: 0, late: 0 };
+  DB.teams.filter((t) => reqsOf(t).includes(r)).forEach((t) => { const s = subOf(t, r); c.total++; c[s.status]++; if (s.status === 'none' && r.due < NOW) c.late++; });
+  return c;
+}
+
+/* ============================ 2) الفرق ============================ */
+function filteredTeams() {
+  const q = ui.q.trim();
+  const fn = FILTERS.find((f) => f[0] === ui.f)[2];
+  const rows = DB.teams
+    .filter((t) => (!ui.pid || t.pid === ui.pid) && (!q || t.name.includes(q) || t.leader.includes(q)))
+    .map((t) => ({ t, s: stats(t) }));
+  const out = rows.filter((x) => fn(x.s));
+  const pri = { wait: 0, late: 1, new: 2, rev: 3, work: 4, done: 5 };
+  out.sort((a, b) => (b.s.isNew - a.s.isNew) * 0 + pri[a.s.main] - pri[b.s.main] || (a.s.oldestWait || Infinity) - (b.s.oldestWait || Infinity) || b.t.created - a.t.created);
+  return { out, rows };
+}
+function vTeams() {
+  const { out, rows } = filteredTeams();
+  lastList = out.map((x) => x.t.id);
+  const pages = Math.max(1, Math.ceil(out.length / PAGE));
+  if (ui.page > pages) ui.page = pages;
+  const slice = out.slice((ui.page - 1) * PAGE, ui.page * PAGE);
+  const allOnPage = slice.length && slice.every((x) => ui.sel.has(x.t.id));
+  return `
+  <div class="page-head"><div><h1>الفرق</h1><p class="text-muted">الترتيب تلقائي: الأحوج لك أولاً. الصف ذو الشريط الأزرق = فريق جديد لم تفتحه.</p></div>
+    <button class="btn btn-primary btn-md" data-act="new-req"><i class="ri-add-line"></i> مطلوب جديد</button></div>
+  <div class="chips">${FILTERS.map((f) => `<button class="chip ${ui.f === f[0] ? 'on' : ''}" data-chip="${f[0]}">${f[1]} <em>${rows.filter((x) => f[2](x.s)).length}</em></button>`).join('')}</div>
+  <div class="toolbar">
+    <input class="form-control grow" id="q" placeholder="ابحث باسم الفريق أو القائد…" value="${e(ui.q)}">
+    <select class="form-control" id="pf"><option value="">كل المشاريع</option>${DB.projects.map((p) => `<option value="${p.id}" ${ui.pid === p.id ? 'selected' : ''}>${e(p.title)}</option>`).join('')}</select>
+  </div>
+  ${ui.sel.size ? `<div class="bulkbar"><b>${ui.sel.size} فريق مختار</b>
+    <button class="btn btn-primary btn-sm" data-act="bulk-assign"><i class="ri-task-line"></i> إعطاء مطلوب</button>
+    <button class="btn btn-outline btn-sm" data-act="bulk-remind"><i class="ri-notification-3-line"></i> تذكير</button>
+    <button class="btn btn-outline btn-sm" data-act="bulk-seen"><i class="ri-eye-line"></i> علّم كمشاهد</button>
+    <button class="btn btn-ghost btn-sm" data-act="clear-sel">إلغاء الاختيار</button></div>` : ''}
+  <div class="block">
+    <div class="table-wrapper"><table>
+      <thead><tr><th style="width:36px"><input type="checkbox" data-act="sel-page" ${allOnPage ? 'checked' : ''} aria-label="اختيار الصفحة"></th><th>الفريق</th><th class="hide-m">المشروع</th><th class="hide-m">التقدّم</th><th>الحالة</th><th class="hide-m">آخر نشاط</th><th></th></tr></thead>
+      <tbody>${slice.length ? slice.map(({ t, s }) => `
+        <tr class="clickable ${s.isNew ? 'is-new' : ''}" data-open="${t.id}">
+          <td><input type="checkbox" data-sel="${t.id}" ${ui.sel.has(t.id) ? 'checked' : ''} aria-label="اختيار ${e(t.name)}"></td>
+          <td><div class="tname">${e(t.name)} ${s.isNew ? badge('جديد', 'badge-info') : ''}</div><div class="tsub">القائد: ${e(t.leader)} · ${t.size} أعضاء</div></td>
+          <td class="hide-m">${e(proj(t.pid).title.replace('مشروع التخرج — ', ''))}</td>
+          <td class="hide-m"><div class="mini"><div class="progress"><div class="progress-bar" style="width:${s.total ? s.approved / s.total * 100 : 0}%"></div></div><span>${s.approved}/${s.total}</span></div></td>
+          <td>${badge(MAIN[s.main][0], MAIN[s.main][1])}${s.submitted ? `<div class="tsub">${s.submitted} للمراجعة</div>` : s.late ? `<div class="tsub">${s.late} متأخر</div>` : ''}</td>
+          <td class="hide-m tsub">${ago(s.lastAct)}</td>
+          <td><a class="btn btn-outline btn-sm" href="#/team/${t.id}">${s.submitted ? 'راجع' : 'فتح'}</a></td>
+        </tr>`).join('') : `<tr><td colspan="7"><div class="empty">لا توجد فرق بهذا الفلتر.</div></td></tr>`}</tbody>
+    </table></div>
+    <div class="pager"><span>${out.length ? `${(ui.page - 1) * PAGE + 1}–${Math.min(ui.page * PAGE, out.length)} من ${out.length}` : '0'}</span>
+      <div class="btns"><button class="btn btn-outline btn-sm" data-page="${ui.page - 1}" ${ui.page <= 1 ? 'disabled' : ''}>السابق</button><span style="padding:.35rem .5rem">${ui.page} / ${pages}</span><button class="btn btn-outline btn-sm" data-page="${ui.page + 1}" ${ui.page >= pages ? 'disabled' : ''}>التالي</button></div></div>
+  </div>
+  ${out.length > PAGE ? `<p class="text-sm text-muted">لاختيار كل نتائج الفلتر (${out.length}): <a href="#" data-act="sel-all" style="color:var(--primary);font-weight:700">اختار الكل</a></p>` : ''}`;
+}
+
+/* ============================ 3) صفحة فريق ============================ */
+function vTeam(id) {
+  const t = team(id);
+  if (!t) return '<div class="empty">الفريق غير موجود. <a href="#/teams">رجوع</a></div>';
+  if (!seen.has(t.id)) { seen.add(t.id); saveSeen(); }
+  const s = stats(t);
+  const i = lastList.indexOf(t.id);
+  const prev = i > 0 ? lastList[i - 1] : null, next = i >= 0 && i < lastList.length - 1 ? lastList[i + 1] : null;
+  const rs = reqsOf(t);
+  return `
+  <div class="crumbs"><a href="#/teams">الفرق</a> / <span>${e(t.name)}</span></div>
+  <div class="page-head"><div><h1>${e(t.name)} ${badge(MAIN[s.main][0], MAIN[s.main][1])}</h1>
+    <p class="text-muted">${e(proj(t.pid).title)} · القائد ${e(t.leader)} · ${t.size} أعضاء · انضم ${ago(t.created)}</p></div>
+    <div class="nav2">${prev ? `<a class="btn btn-outline btn-sm" href="#/team/${prev}"><i class="ri-arrow-right-s-line"></i> السابق</a>` : ''}${next ? `<a class="btn btn-outline btn-sm" href="#/team/${next}">التالي <i class="ri-arrow-left-s-line"></i></a>` : ''}</div></div>
+  <div class="block"><div class="block-head"><h2>المطلوب من الفريق</h2><button class="btn btn-outline btn-sm" data-act="assign-one" data-id="${t.id}"><i class="ri-add-line"></i> مطلوب خاص بهذا الفريق</button></div>
+    ${rs.length ? rs.map((r) => { const x = subOf(t, r); return `<div class="req-row">
+      <div><div class="t">${e(r.title)}</div>
+        <div class="s text-sm text-muted">${dueText(r.due)} (${fmtDate(r.due)})${x.at ? ` · سُلّم ${ago(x.at)}` : ''}</div>
+        ${x.status === 'revision' && x.note ? `<div class="text-sm" style="color:var(--info);margin-top:.2rem">ملاحظتك: ${e(x.note)}</div>` : ''}
+        ${x.files ? x.files.map((f) => `<div class="filebox"><i class="ri-file-pdf-2-line"></i>${e(f)}</div>`).join('') : ''}</div>
+      <div class="actions">${subBadge(x, r)}${x.status === 'submitted' ? `<button class="btn btn-success btn-sm" data-act="approve" data-t="${t.id}" data-r="${r.id}">اعتماد</button><button class="btn btn-outline btn-sm" data-act="revise" data-t="${t.id}" data-r="${r.id}">طلب تعديل</button>` : ''}</div></div>`; }).join('') : '<div class="empty">لم يُعطَ هذا الفريق أي مطلوب بعد.</div>'}</div>
+  <div class="grid2">
+    <div class="block"><div class="block-head"><h2>ملاحظاتك الخاصة</h2></div><div class="panel"><textarea class="form-control" id="tnote" rows="4" placeholder="ملاحظة لنفسك عن الفريق (لا يراها الطلاب)">${e(t.note)}</textarea><div style="margin-top:.6rem"><button class="btn btn-outline btn-sm" data-act="save-note" data-id="${t.id}">حفظ</button></div></div></div>
+    <div class="block"><div class="block-head"><h2>ملخّص</h2></div><div class="panel">${stackBar(s)}${legend}<p class="text-sm text-muted" style="margin-top:.75rem">آخر مراجعة منك: ${t.lastReview ? ago(t.lastReview) : 'لم تراجع هذا الفريق بعد'}</p></div></div>
+  </div>`;
+}
+
+/* ============================ 4) المراجعة ============================ */
+function queue() {
+  const out = [];
+  DB.teams.forEach((t) => reqsOf(t).forEach((r) => { const s = subOf(t, r); if (s.status === 'submitted' && (!ui.qReq || r.id === ui.qReq)) out.push({ t, r, s }); }));
+  return out.sort((a, b) => a.s.at - b.s.at);
+}
+function vReview(arg) {
+  const q = queue();
+  let cur = null;
+  if (arg) { const [tid, rid] = arg.split('~'); cur = q.find((x) => x.t.id === tid && x.r.id === rid); }
+  if (!cur) cur = q[0];
+  ui.qSel = cur ? cur.t.id + '~' + cur.r.id : null;
+  const idx = cur ? q.indexOf(cur) : -1;
+  return `
+  <div class="page-head"><div><h1>المراجعة</h1><p class="text-muted">${q.length} تسليم مستني، الأقدم أولاً. لما تعتمد أو ترد، بيفتح لك التالي تلقائياً.</p></div>
+    <select class="form-control" id="qreq" style="width:auto;min-width:220px"><option value="">كل المطلوبات</option>${DB.reqs.map((r) => `<option value="${r.id}" ${ui.qReq === r.id ? 'selected' : ''}>${e(r.title)}</option>`).join('')}</select></div>
+  ${q.length ? `<div class="split">
+    <div class="block"><div class="qlist">${q.map((x) => `<button class="qitem ${x === cur ? 'on' : ''}" data-q="${x.t.id}~${x.r.id}"><div class="t">${e(x.t.name)}</div><div class="s">${e(x.r.title)} · ${ago(x.s.at)}</div></button>`).join('')}</div></div>
+    <div class="block"><div class="panel">
+      <div class="page-head" style="margin-bottom:.75rem"><div><h2>${e(cur.r.title)}</h2><p class="text-muted text-sm"><a href="#/team/${cur.t.id}" style="color:var(--primary);font-weight:700">${e(cur.t.name)}</a> · القائد ${e(cur.t.leader)} · سُلّم ${ago(cur.s.at)}</p></div><span class="text-sm text-muted">${idx + 1} من ${q.length}</span></div>
+      <p class="text-sm text-muted" style="margin-bottom:.5rem">المطلوب: ${e(cur.r.desc)}</p>
+      ${(cur.s.files || []).map((f) => `<div class="filebox"><i class="ri-file-pdf-2-line"></i><span style="flex:1">${e(f)}</span><button class="btn btn-outline btn-sm" type="button">معاينة</button></div>`).join('')}
+      <div class="form-group" style="margin-top:1rem"><label class="form-label" for="rnote">ملاحظتك (مطلوبة عند طلب التعديل)</label><textarea class="form-control" id="rnote" rows="3"></textarea></div>
+      <div class="actions"><button class="btn btn-success btn-md" data-act="rv-approve" data-t="${cur.t.id}" data-r="${cur.r.id}"><i class="ri-check-line"></i> اعتماد والتالي</button>
+        <button class="btn btn-outline btn-md" data-act="rv-revise" data-t="${cur.t.id}" data-r="${cur.r.id}">طلب تعديل والتالي</button>
+        ${q[idx + 1] ? `<a class="btn btn-ghost btn-md" href="#/review/${q[idx + 1].t.id}~${q[idx + 1].r.id}">تخطّي</a>` : ''}</div>
+    </div></div></div>` : '<div class="block"><div class="empty">خلّصت كل المراجعات المعلّقة 🎉</div></div>'}`;
+}
+
+/* ============================ 5) المطلوبات ============================ */
+function vReqs() {
+  return `
+  <div class="page-head"><div><h1>المطلوبات</h1><p class="text-muted">ما تطلبه من الفرق. اعطِ مطلوباً لكل الفرق أو لفرق مختارة، وتابع مين سلّم.</p></div>
+    <button class="btn btn-primary btn-md" data-act="new-req"><i class="ri-add-line"></i> مطلوب جديد</button></div>
+  ${DB.projects.map((p) => `<h2 style="font-size:1.05rem;margin:1rem 0 .6rem">${e(p.title)}</h2>
+    <div class="block">${DB.reqs.filter((r) => r.pid === p.id).map((r) => { const c = reqCounts(r); return `
+      <a class="req-row" href="#/requirement/${r.id}" style="grid-template-columns:1.2fr 1fr auto">
+        <div><div class="t">${e(r.title)}</div><div class="text-sm text-muted">${dueText(r.due)} · ${r.only ? `${r.only.length} فرق مختارة` : 'كل الفرق'}</div></div>
+        <div>${stackBar(c)}<div class="text-sm text-muted" style="margin-top:.25rem">${c.approved} معتمد · ${c.submitted} بانتظارك · ${c.none} لم يسلّم</div></div>
+        <i class="ri-arrow-left-s-line"></i></a>`; }).join('') || '<div class="empty">لا مطلوبات بعد.</div>'}</div>`).join('')}`;
+}
+function vReq(id) {
+  const r = req(id);
+  if (!r) return '<div class="empty">غير موجود</div>';
+  const c = reqCounts(r);
+  const f = ui.rf || 'none';
+  const rows = DB.teams.filter((t) => reqsOf(t).includes(r)).map((t) => ({ t, s: subOf(t, r) }));
+  const list = rows.filter((x) => f === 'all' || (f === 'none' ? x.s.status === 'none' : x.s.status === f));
+  const chip = (k, l, n) => `<button class="chip ${f === k ? 'on' : ''}" data-rf="${k}" data-id="${r.id}">${l} <em>${n}</em></button>`;
+  const pending = rows.filter((x) => x.s.status === 'none').map((x) => x.t.id);
+  return `
+  <div class="crumbs"><a href="#/requirements">المطلوبات</a> / <span>${e(r.title)}</span></div>
+  <div class="page-head"><div><h1>${e(r.title)}</h1><p class="text-muted">${e(proj(r.pid).title)} · ${dueText(r.due)} (${fmtDate(r.due)})</p><p class="text-sm" style="margin-top:.3rem">${e(r.desc)}</p></div>
+    <button class="btn btn-primary btn-md" data-act="remind-req" data-id="${r.id}" ${pending.length ? '' : 'disabled'}><i class="ri-notification-3-line"></i> تذكير غير المسلّمين (${pending.length})</button></div>
+  <div class="block" style="padding:1rem 1.15rem">${stackBar(c)}${legend}</div>
+  <div class="chips">${chip('none', 'لم يسلّم', c.none)}${chip('submitted', 'بانتظارك', c.submitted)}${chip('revision', 'تعديل', c.revision)}${chip('approved', 'معتمد', c.approved)}${chip('all', 'الكل', c.total)}</div>
+  <div class="block"><div class="table-wrapper"><table><thead><tr><th>الفريق</th><th>الحالة</th><th class="hide-m">التسليم</th><th></th></tr></thead><tbody>
+    ${list.slice(0, 40).map(({ t, s }) => `<tr><td><div class="tname">${e(t.name)}</div><div class="tsub">${e(t.leader)}</div></td><td>${subBadge(s, r)}</td><td class="hide-m tsub">${s.at ? ago(s.at) : '—'}</td><td><a class="btn btn-outline btn-sm" href="#/${s.status === 'submitted' ? 'review/' + t.id + '~' + r.id : 'team/' + t.id}">${s.status === 'submitted' ? 'راجع' : 'فتح'}</a></td></tr>`).join('') || `<tr><td colspan="4"><div class="empty">لا يوجد.</div></td></tr>`}
+  </tbody></table></div>${list.length > 40 ? `<div class="pager"><span>يعرض أول 40 من ${list.length}</span></div>` : ''}</div>`;
+}
+
+/* ============================ 6) المشاريع ============================ */
+function vProjects() {
+  return `
+  <div class="page-head"><div><h1>المشاريع</h1><p class="text-muted">كل مشروع له كود تعطيه للطلاب ليبدأ القادة تسجيل فرقهم.</p></div>
+    <button class="btn btn-primary btn-md" data-act="new-proj"><i class="ri-add-line"></i> مشروع جديد</button></div>
+  <div class="cards">${DB.projects.map((p) => {
+    const ts = DB.teams.filter((t) => t.pid === p.id); const ss = ts.map(stats);
+    const agg = ss.reduce((a, s) => { a.total += s.total; a.approved += s.approved; a.submitted += s.submitted; a.revision += s.revision; a.none += s.none; a.late += s.late; return a; }, { total: 0, approved: 0, submitted: 0, revision: 0, none: 0, late: 0 });
+    return `<div class="pcard"><h3>${e(p.title)}</h3>
+      <div class="codebox"><span>${e(p.code)}</span><button data-copy="${e(p.code)}" aria-label="نسخ الكود" title="نسخ"><i class="ri-file-copy-line"></i></button></div>
+      <div class="meta"><span><i class="ri-team-line"></i> ${ts.length} فريق</span><span><i class="ri-eye-line"></i> ${ss.filter((s) => s.isNew).length} جديد</span><span><i class="ri-inbox-line"></i> ${agg.submitted} للمراجعة</span></div>
+      ${stackBar(agg)}${legend}
+      <div class="actions" style="margin-top:.9rem"><a class="btn btn-primary btn-sm" href="#/teams" data-project="${p.id}">عرض فرق المشروع</a><a class="btn btn-outline btn-sm" href="#/requirements">المطلوبات</a></div></div>`; }).join('')}</div>`;
+}
+
+/* ============================ 7) النشر في المعرض ============================ */
+function vGallery() {
+  const ready = DB.teams.map((t) => ({ t, s: stats(t) })).filter((x) => x.s.done);
+  return `
+  <div class="page-head"><div><h1>النشر في المعرض</h1><p class="text-muted">الفرق اللي أنهت كل المطلوب. بعد المناقشة تقدر تنشر المشروع في المعرض العام.</p></div></div>
+  <div class="block">${ready.length ? ready.map(({ t }) => `<div class="row-item"><div><div class="t">${e(t.name)}</div><div class="s">${e(proj(t.pid).title)}</div></div>
+    ${t.published ? badge('منشور', 'badge-success') : `<button class="btn btn-primary btn-sm" data-act="publish" data-id="${t.id}">نشر بعد المناقشة</button>`}</div>`).join('') : '<div class="empty">لا توجد فرق جاهزة للنشر بعد.</div>'}</div>`;
+}
+
+/* ============================ المودالات ============================ */
+function modal(title, body, foot) {
+  $('#mx-title').textContent = title; $('#mx-body').innerHTML = body; $('#mx-foot').innerHTML = foot; openModal('modal-x');
+}
+function assignModal(preTeams, preProject) {
+  const pid = preProject || (preTeams && preTeams.length ? team(preTeams[0]).pid : DB.projects[0].id);
+  const pt = (p) => DB.teams.filter((t) => t.pid === p);
+  const build = (p) => `
+    <div class="radio-row" id="scope">
+      <label><input type="radio" name="sc" value="all" ${preTeams ? '' : 'checked'}><span>كل فرق المشروع (${pt(p).length})<small>والفرق اللي هتنضم بعد كده كمان.</small></span></label>
+      <label><input type="radio" name="sc" value="sel" ${preTeams ? 'checked' : ''}><span>فرق مختارة<small>اختار من القائمة تحت.</small></span></label>
+    </div>
+    <div class="pick" id="pick" ${preTeams ? '' : 'hidden'}>${pt(p).map((t) => `<label><input type="checkbox" value="${t.id}" ${preTeams && preTeams.includes(t.id) ? 'checked' : ''}>${e(t.name)}</label>`).join('')}</div>`;
+  modal('مطلوب جديد', `
+    <div class="form-group"><label class="form-label" for="r-p">المشروع</label><select class="form-control" id="r-p">${DB.projects.map((p) => `<option value="${p.id}" ${p.id === pid ? 'selected' : ''}>${e(p.title)}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label" for="r-t">عنوان المطلوب</label><input class="form-control" id="r-t" placeholder="مثال: وثيقة المتطلبات"></div>
+    <div class="form-group"><label class="form-label" for="r-d">الوصف</label><textarea class="form-control" id="r-d" rows="2" placeholder="ماذا تريد بالضبط؟ (صيغة الملف، عدد الصفحات…)"></textarea></div>
+    <div class="form-group"><label class="form-label" for="r-due">موعد التسليم</label><input class="form-control" type="date" id="r-due"></div>
+    <div id="scope-wrap">${build(pid)}</div><div class="form-error" id="r-err"></div>`,
+    `<button class="btn btn-ghost btn-md" onclick="closeModal('modal-x')">إلغاء</button><button class="btn btn-primary btn-md" data-act="save-req">إرسال للفرق</button>`);
+  $('#r-p').onchange = (ev) => { $('#scope-wrap').innerHTML = build(ev.target.value); };
+  $('#mx-body').onchange = (ev) => { if (ev.target.name === 'sc') $('#pick').hidden = ev.target.value === 'all'; };
+}
+function toast(m, t = 'success') { showToast(m, t); }
+
+/* ============================ الأحداث ============================ */
+document.addEventListener('click', async (ev) => {
+  const el = ev.target.closest('[data-act],[data-chip],[data-open],[data-q],[data-page],[data-filter],[data-project],[data-rf],[data-copy]');
+  if (!el) return;
+  const d = el.dataset;
+  if (el.matches('input[type=checkbox]')) return;
+  if (d.filter) { ui.f = d.filter; ui.page = 1; ui.pid = ''; ui.q = ''; return; } // يكمل التنقل عبر الرابط
+  if (d.project) { ui.pid = d.project; ui.f = 'all'; ui.page = 1; return; }
+  if (d.chip) { ui.f = d.chip; ui.page = 1; route(); return; }
+  if (d.page) { ui.page = Number(d.page); route(); return; }
+  if (d.rf) { ui.rf = d.rf; route(); return; }
+  if (d.q) { location.hash = '#/review/' + d.q; return; }
+  if (d.copy) { try { await navigator.clipboard.writeText(d.copy); } catch (_) {} toast('تم نسخ الكود'); return; }
+  if (d.open) { if (ev.target.closest('a,button,input')) return; location.hash = '#/team/' + d.open; return; }
+  switch (d.act) {
+    case 'sel-all': ev.preventDefault(); filteredTeams().out.forEach((x) => ui.sel.add(x.t.id)); route(); break;
+    case 'clear-sel': ui.sel.clear(); route(); break;
+    case 'bulk-seen': ui.sel.forEach((id) => seen.add(id)); saveSeen(); toast(`تم تعليم ${ui.sel.size} فريق كمشاهد`); ui.sel.clear(); route(); break;
+    case 'bulk-remind': { const n = await Api.remind([...ui.sel], null); toast(`تم إرسال تذكير إلى ${n} فريق`); ui.sel.clear(); route(); break; }
+    case 'bulk-assign': assignModal([...ui.sel]); break;
+    case 'new-req': assignModal(null); break;
+    case 'assign-one': assignModal([d.id]); break;
+    case 'save-req': {
+      const title = $('#r-t').value.trim(), due = $('#r-due').value, p = $('#r-p').value;
+      const sc = (document.querySelector('input[name=sc]:checked') || {}).value;
+      const ids = sc === 'sel' ? [...document.querySelectorAll('#pick input:checked')].map((i) => i.value) : null;
+      const err = (m) => { $('#r-err').textContent = m; };
+      if (title.length < 3) return err('اكتب عنوان المطلوب.');
+      if (!due) return err('حدّد موعد التسليم.');
+      if (sc === 'sel' && !ids.length) return err('اختار فريقاً واحداً على الأقل.');
+      await Api.createReq({ pid: p, title, desc: $('#r-d').value.trim() || '—', due: new Date(due + 'T23:59:00').getTime() }, ids);
+      closeModal('modal-x'); ui.sel.clear(); toast(ids ? `تم إرسال المطلوب إلى ${ids.length} فريق` : 'تم إرسال المطلوب لكل فرق المشروع');
+      location.hash = '#/requirement/' + DB.reqs[DB.reqs.length - 1].id; route(); break;
+    }
+    case 'new-proj':
+      modal('مشروع جديد', `<div class="form-group"><label class="form-label" for="p-t">اسم المشروع</label><input class="form-control" id="p-t"></div><div class="form-group"><label class="form-label" for="p-x">اختصار للكود</label><input class="form-control" id="p-x" maxlength="4" placeholder="CS" style="text-transform:uppercase"></div><div class="form-error" id="p-err"></div>`,
+        `<button class="btn btn-ghost btn-md" onclick="closeModal('modal-x')">إلغاء</button><button class="btn btn-primary btn-md" data-act="save-proj">إنشاء</button>`); break;
+    case 'save-proj': {
+      const t = $('#p-t').value.trim(), x = ($('#p-x').value.trim() || 'PRJ').toUpperCase();
+      if (t.length < 3) { $('#p-err').textContent = 'اكتب اسم المشروع.'; return; }
+      await Api.createProject({ title: t, prefix: x, open: true }); closeModal('modal-x'); toast('تم إنشاء المشروع'); route(); break;
+    }
+    case 'approve': await Api.approve(d.t, d.r); toast('تم الاعتماد'); route(); break;
+    case 'revise': {
+      modal('طلب تعديل', `<div class="form-group"><label class="form-label" for="rv-n">ما المطلوب تعديله؟</label><textarea class="form-control" id="rv-n" rows="3"></textarea></div><div class="form-error" id="rv-err"></div>`,
+        `<button class="btn btn-ghost btn-md" onclick="closeModal('modal-x')">إلغاء</button><button class="btn btn-primary btn-md" data-act="rv-ok" data-t="${d.t}" data-r="${d.r}">إرسال</button>`); break;
+    }
+    case 'rv-ok': { const n = $('#rv-n').value.trim(); if (n.length < 3) { $('#rv-err').textContent = 'اكتب الملاحظة.'; return; } await Api.revise(d.t, d.r, n); closeModal('modal-x'); toast('تم إرسال طلب التعديل'); route(); break; }
+    case 'rv-approve': case 'rv-revise': {
+      const note = $('#rnote').value.trim();
+      if (d.act === 'rv-revise' && note.length < 3) { $('#rnote').classList.add('error'); $('#rnote').focus(); return; }
+      const q = queue(); const i = q.findIndex((x) => x.t.id === d.t && x.r.id === d.r); const nxt = q[i + 1] || q[i - 1];
+      d.act === 'rv-approve' ? await Api.approve(d.t, d.r) : await Api.revise(d.t, d.r, note);
+      toast(d.act === 'rv-approve' ? 'تم الاعتماد' : 'تم إرسال طلب التعديل');
+      const nq = queue(); const target = nxt && nq.find((x) => x.t.id === nxt.t.id && x.r.id === nxt.r.id);
+      location.hash = target ? '#/review/' + target.t.id + '~' + target.r.id : '#/review'; route(); break;
+    }
+    case 'remind-req': { const r = req(d.id); const ids = DB.teams.filter((t) => reqsOf(t).includes(r) && subOf(t, r).status === 'none').map((t) => t.id); const n = await Api.remind(ids, r.id); toast(`تم إرسال تذكير إلى ${n} فريق`); break; }
+    case 'save-note': await Api.setNote(d.id, $('#tnote').value); toast('تم حفظ الملاحظة'); break;
+    case 'publish': await Api.publish(d.id); toast('تم النشر في المعرض'); route(); break;
+  }
+});
+document.addEventListener('change', (ev) => {
+  const el = ev.target;
+  if (el.dataset.sel) { el.checked ? ui.sel.add(el.dataset.sel) : ui.sel.delete(el.dataset.sel); route(); }
+  else if (el.dataset.act === 'sel-page') { const { out } = filteredTeams(); out.slice((ui.page - 1) * PAGE, ui.page * PAGE).forEach((x) => (el.checked ? ui.sel.add(x.t.id) : ui.sel.delete(x.t.id))); route(); }
+  else if (el.id === 'pf') { ui.pid = el.value; ui.page = 1; route(); }
+  else if (el.id === 'qreq') { ui.qReq = el.value; location.hash = '#/review'; route(); }
+});
+let qT;
+document.addEventListener('input', (ev) => {
+  if (ev.target.id !== 'q') return;
+  ui.q = ev.target.value; ui.page = 1; clearTimeout(qT);
+  qT = setTimeout(() => { const pos = ev.target.selectionStart; route(); const n = $('#q'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }, 200);
+});
+route();
+</script>
+</body>
+</html>

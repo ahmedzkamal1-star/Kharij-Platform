@@ -1,0 +1,86 @@
+{
+  "name": "Graduation Projects - AI Agent & Student Verification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook-agent",
+      "name": "Webhook - AI Agent Prompt",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/ai/agent",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": $json.body.prompt || \"تقرير\",\n  \"user_role\": $json.body.user_role || \"doctor\",\n  \"doctor_name\": $json.body.doctor_name || \"د. محمد محمود\"\n}",
+        "options": {}
+      },
+      "id": "node-http-agent",
+      "name": "HTTP Request - Query SQLite & Platform",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"ai_agent_reply\": $json.reply,\n  \"action_type\": $json.actionType,\n  \"suggested_actions\": $json.suggestedActions,\n  \"timestamp\": $json.timestamp\n}",
+        "options": {}
+      },
+      "id": "node-respond-agent",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        240
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - AI Agent Prompt": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Query SQLite & Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Query SQLite & Platform": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1.0",
+  "id": "graduation-projects-ai-agent",
+  "tags": []
+}
