@@ -1,21 +1,13 @@
 {
   "version": 2,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/pages/(.*)",
-      "dest": "/pages/$1"
+      "source": "/api/(.*)",
+      "destination": "/server.js"
     },
     {
-      "src": "/(.*\\.(css|js|png|jpg|jpeg|svg|ico|json|html))",
-      "dest": "/$1"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/server.js"
+      "source": "/(.*)",
+      "destination": "/server.js"
     }
   ]
 }
