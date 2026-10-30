@@ -20,6 +20,10 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use(express.static(path.join(__dirname)));
+
 // إعداد مساحة التخزين للملفات (Multer Storage Engine)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
