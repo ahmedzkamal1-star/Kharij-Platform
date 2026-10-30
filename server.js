@@ -809,3 +809,11 @@ app.listen(PORT, () => {
   console.log(`🚀 خادم المنصة وقاعدة بيانات SQLite يعملان على الرابط: http://localhost:${PORT}`);
   console.log(`🔗 رابط n8n Webhook المحلي: http://localhost:${PORT}/api/n8n/verify-student`);
 });
+const path = require('path');
+
+// لخدمة الملفات الثابتة (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname)));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
