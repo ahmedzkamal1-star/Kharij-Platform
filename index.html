@@ -10,10 +10,116 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
 
   <style>
-    /* هيدر وموبايل نافبار */
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --surface: #FFFFFF;
+      --background: #F8FAFC;
+      --text: #0F172A;
+      --text-secondary: #64748B;
+      --border: #E2E8F0;
+      --radius: 8px;
+      --navbar-h: 70px;
+      --transition: all 0.2s ease-in-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+      direction: rtl;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+    .btn-sm { padding: 0.4rem 0.85rem; font-size: 0.875rem; }
+    .btn-md { padding: 0.6rem 1.25rem; font-size: 0.95rem; }
+    .btn-lg { padding: 0.75rem 1.75rem; font-size: 1.05rem; }
+    .w-full { width: 100%; }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--surface); border-color: var(--primary); color: var(--primary); }
+
+    /* Navbar */
+    .navbar {
+      height: var(--navbar-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--primary);
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: #EFF6FF;
+      color: var(--primary);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .navbar-nav { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-link { font-weight: 600; color: var(--text-secondary); transition: var(--transition); }
+    .nav-link:hover, .nav-link.active { color: var(--primary); }
+    .navbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+    /* Hero */
+    .hero { text-align: center; }
+    .hero h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 1rem; color: var(--text); }
+    .hero p { font-size: 1.15rem; color: var(--text-secondary); max-width: 750px; margin: 0 auto; }
+    .hero-actions { display: flex; justify-content: center; margin-top: 1.5rem; }
+
+    /* Sections */
+    .section { padding: 4rem 0; }
+    .section-header { text-align: center; margin-bottom: 2.5rem; }
+    .section-header h2 { font-size: 1.85rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .section-header p { color: var(--text-secondary); font-size: 1rem; }
+
+    /* Hamburger & Mobile Navbar */
     .hamburger {
       display: none;
       flex-direction: column;
@@ -45,25 +151,22 @@
       .navbar-actions .btn-outline { display: none; }
     }
 
-    /* سيكشن الخطوات البسيطة المرقمة */
+    /* سيكشن الخطوات */
     .steps-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 1.25rem;
       margin-top: 2rem;
     }
-    @media (max-width: 900px) {
-      .steps-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 550px) {
-      .steps-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 900px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 550px) { .steps-grid { grid-template-columns: 1fr; } }
+    
     .step-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 1.5rem;
-      position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .step-card h3 {
       font-size: 1rem;
@@ -81,28 +184,25 @@
       background: var(--primary);
       color: #fff;
       border-radius: 4px;
-      border: 0;
       font-weight: 700;
       font-size: 0.85rem;
       margin-inline-end: 10px;
       flex-shrink: 0;
     }
     .step-card p {
-      color: #4B5563;
-      font-size: 15px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
       line-height: 1.6;
-      margin: 0;
     }
 
-    /* بطاقات الأدوار (الدكتور المشرف وقائد الفريق) */
+    /* الأدوار */
     .roles-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 1.5rem;
     }
-    @media (max-width: 768px) {
-      .roles-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 768px) { .roles-grid { grid-template-columns: 1fr; } }
+
     .role-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -110,40 +210,41 @@
       padding: 1.75rem 1.5rem;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .role-card:hover {
-      border-color: var(--primary);
+    .role-card:hover { border-color: var(--primary); }
+    .role-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .role-card p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.25rem; flex: 1; }
+    .role-features { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .role-feature-item { font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.5rem; }
+    .role-feature-item i { color: var(--primary); font-size: 1.1rem; }
+
+    /* Footer */
+    .footer {
+      background: #0F172A;
+      color: #94A3B8;
+      padding: 3.5rem 0 1.5rem;
+      margin-top: 3rem;
     }
-    .role-card h3 {
-      font-size: 1.15rem;
-      margin-bottom: 0.5rem;
-      color: var(--text);
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
     }
-    .role-card p {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: 1.25rem;
-      flex: 1;
-    }
-    .role-features {
-      margin-bottom: 1.5rem;
+    @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr; } }
+    .footer-col h4 { color: #fff; font-size: 1rem; margin-bottom: 1rem; font-weight: 700; }
+    .footer-col a { display: block; color: #94A3B8; margin-bottom: 0.5rem; font-size: 0.9rem; transition: var(--transition); }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom {
+      border-top: 1px solid #1E293B;
+      padding-top: 1.5rem;
       display: flex;
-      flex-direction: column;
-      gap: 0.45rem;
-    }
-    .role-feature-item {
+      justify-content: space-between;
       font-size: 0.85rem;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .role-feature-item i {
-      color: var(--primary);
     }
 
-    /* زر الصعود للأعلى */
+    /* زر الصعود */
     #back-to-top {
       position: fixed;
       bottom: 1.5rem; left: 1.5rem;
@@ -164,9 +265,6 @@
 </head>
 <body>
 
-<!-- ============================================================
-     NAVBAR
-     ============================================================ -->
 <nav class="navbar" id="main-navbar">
   <div class="container">
     <a class="navbar-brand" href="index.html">
@@ -181,12 +279,8 @@
     </ul>
 
     <div class="navbar-actions">
-      <a href="pages/auth.html" class="btn btn-outline btn-sm">
-        تسجيل الدخول
-      </a>
-      <a href="pages/auth.html" class="btn btn-primary btn-sm">
-        إنشاء حساب
-      </a>
+      <a href="pages/auth.html" class="btn btn-outline btn-sm">تسجيل الدخول</a>
+      <a href="pages/auth.html" class="btn btn-primary btn-sm">إنشاء حساب</a>
       <button class="hamburger" id="menu-toggle" aria-label="القائمة">
         <span></span><span></span><span></span>
       </button>
@@ -194,28 +288,18 @@
   </div>
 </nav>
 
-<!-- ============================================================
-     1. HERO SECTION (تصميم هادئ، بدون نقط ولا بقع، عنوان ولون ثابت)
-     ============================================================ -->
 <section class="hero" id="hero" style="background:#F8FAFC; padding-top: calc(var(--navbar-h) + 1.5rem); padding-bottom: 2rem;">
   <div class="container" style="padding: 0.5rem 0 1rem;">
     <h1>تنظيم ومتابعة مشاريع التخرج الجامعية</h1>
-    
     <p style="margin-bottom: 1.5rem;">
       يرفع الفريق ملفات المشروع ويراجعها الدكتور خطوة بخطوة. منصة تجمع الدكتور وقائد الفريق في بيئة عمل منظمة لمتابعة التسليمات والملاحظات حتى يوم المناقشة.
     </p>
-
     <div class="hero-actions">
-      <a href="pages/auth.html" class="btn btn-primary btn-lg">
-        ابدأ استخدام المنصة
-      </a>
+      <a href="pages/auth.html" class="btn btn-primary btn-lg">ابدأ استخدام المنصة</a>
     </div>
   </div>
 </section>
 
-<!-- ============================================================
-     2. HOW IT WORKS (4 خطوات مرقمة ومباشرة بفصحى مبسطة)
-     ============================================================ -->
 <section class="section" id="how-it-works" style="background:var(--surface); border-bottom:1px solid var(--border);">
   <div class="container">
     <div class="section-header">
@@ -247,9 +331,6 @@
   </div>
 </section>
 
-<!-- ============================================================
-     3. ROLES SECTION (بوابات الدخول للدكتور وقائد الفريق عبر صفحة الدخول)
-     ============================================================ -->
 <section class="section" id="roles-section">
   <div class="container">
     <div class="section-header">
@@ -258,7 +339,6 @@
     </div>
 
     <div class="roles-grid">
-      <!-- Role 1: Doctor -->
       <div class="role-card">
         <h3>الدكتور المشرف</h3>
         <p>متابعة مشاريع التخرج، استعراض الملفات المرفوعة من قادة الفرق، وكتابة الملاحظات الأكاديمية والتوجيهات لكل مرحلة.</p>
@@ -268,12 +348,9 @@
           <div class="role-feature-item"><i class="ri-check-line"></i> تدوين الملاحظات وطلب التعديلات اللازمة</div>
           <div class="role-feature-item"><i class="ri-check-line"></i> اعتماد المشروع النهائي لجلسة المناقشة</div>
         </div>
-        <a href="pages/auth.html" class="btn btn-outline btn-md w-full" style="justify-content:center;">
-          تسجيل الدخول للمشرفين
-        </a>
+        <a href="pages/auth.html" class="btn btn-outline btn-md w-full" style="justify-content:center;">تسجيل الدخول للمشرفين</a>
       </div>
 
-      <!-- Role 2: Team Leader -->
       <div class="role-card" style="border: 2px solid var(--primary);">
         <h3>قائد الفريق (ممثل الطلاب)</h3>
         <p>طالب مسؤول عن تسجيل فريقه بكود المشروع، إدراج بيانات أعضاء مجموعته، ورفع ملفات المشروع والتعديلات المطلوبة.</p>
@@ -283,25 +360,18 @@
           <div class="role-feature-item"><i class="ri-check-line"></i> رفع ملفات المخرجات البرمجية والتوثيق</div>
           <div class="role-feature-item"><i class="ri-check-line"></i> استلام ملاحظات المشرف ورفع النسخ المعدلة</div>
         </div>
-        <a href="pages/auth.html" class="btn btn-primary btn-md w-full" style="justify-content:center;">
-          تسجيل الدخول لقادة الفرق
-        </a>
+        <a href="pages/auth.html" class="btn btn-primary btn-md w-full" style="justify-content:center;">تسجيل الدخول لقادة الفرق</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================
-     FOOTER
-     ============================================================ -->
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
         <div style="font-weight:700; color:#fff; font-size:1.1rem; margin-bottom:0.5rem;">منصة خِرّيج</div>
-        <p>
-          منصة جامعية مخصصة لتنظيم إشراف وتسليم مشاريع التخرج بين أعضاء هيئة التدريس وقادة فرق الطلاب.
-        </p>
+        <p>منصة جامعية مخصصة لتنظيم إشراف وتسليم مشاريع التخرج بين أعضاء هيئة التدريس وقادة فرق الطلاب.</p>
       </div>
 
       <div class="footer-col">
@@ -331,13 +401,19 @@
   </div>
 </footer>
 
-<!-- زر العودة للأعلى -->
 <button id="back-to-top" aria-label="العودة للأعلى" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <i class="ri-arrow-up-line"></i>
 </button>
 
-<script src="js/main.js"></script>
 <script>
+  // تفعيل قائمة الموبايل
+  const toggle = document.getElementById('menu-toggle');
+  const nav = document.getElementById('nav-links');
+  if (toggle && nav) {
+    toggle.addEventListener('click', () => nav.classList.toggle('open'));
+  }
+
+  // تفعيل زر الصعود
   window.addEventListener('scroll', () => {
     const btn = document.getElementById('back-to-top');
     if (btn) btn.classList.toggle('visible', window.scrollY > 300);
